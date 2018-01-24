@@ -33,7 +33,7 @@ namespace Takinti.Models
         public int Quantity { get; set; }
 
         public decimal Price { get { return Product.Price; } }
-        public decimal TotalPrice { get { return Product.Price = Quantity; } }
+        public decimal TotalPrice { get { return Product.Price * Quantity; } }
 
 
 
