@@ -48,6 +48,30 @@ namespace Takinti.Controllers
 
             }
         }
+        public JsonResult RemoveFromCart(string slug)
+        {
+           
+
+            if (Session["Cart"] == null)
+            {
+                Session["Cart"] = new Cart();
+                
+            }
+
+            else
+            {
+                var cartItem = ((Cart)Session["Cart"]).CartItems.FirstOrDefault(p => p.Product.Slug.ToLower() == slug.ToLower());
+
+                if (cartItem != null)
+                     {
+                        ((Cart)Session["Cart"]).CartItems.Remove(cartItem);
+                    }
+                    
+            }
+            return Json(CartProductCount());
+            
+        }
+        
 
         public int CartProductCount()
         {

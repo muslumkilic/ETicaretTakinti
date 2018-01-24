@@ -235,7 +235,7 @@
                                 <span class="shp__price">@cartItem.Price ₺</span>
                             </div>
                             <div class="remove__btn">
-                                <a href="#" title="Remove this item"><i class="zmdi zmdi-close"></i></a>
+                                <a href="javascript:void(0)" onclick="RemoveFromCart('@cartItem.Product.Slug')" title="Remove this item"><i class="zmdi zmdi-close"></i></a>
                             </div>
                         </div>
                         }
@@ -410,16 +410,28 @@
     <script>
         function AddToCart(slug, closeModal) {
             $.post("/Shop/AddToCart", { slug: slug }, function (data) {
-             if (data > 0) {
-                 UpdateBadge(data);
-                 if (closeModal){
-                     $(closeModal).modal("hide");
-                 }
-              }
-            else {
-                alert("Bir Hata Oluştu !");
-              }
-           });
+                if (data > 0) {
+                    UpdateBadge(data);
+                    if (closeModal) {
+                        $(closeModal).modal("hide");
+                    }
+                }
+                else {
+                    alert("Bir Hata Oluştu !");
+                }
+            }).fail(function () {
+                alert("Bir Hata oluştu.")
+            });
+        }
+        function RemoveFromCart(slug, closeModal) {
+            $.post("/Shop/RemoveFromCart", { slug: slug }, function (data) {
+               if(data > 0){
+                   UpdateBadge(data);
+               }
+
+            }).fail(function () {
+                alert("Bir Hata oluştu.");
+                });
         }
 
         function UpdateBadge(data) {
