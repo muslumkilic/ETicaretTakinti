@@ -12,6 +12,10 @@ namespace Takinti.Controllers
         // GET: Shop
         public ActionResult Cart()
         {
+            if (Request.IsAjaxRequest())
+            {
+                return View("LayoutCart");
+            }
             return View();
         }
 
@@ -32,8 +36,14 @@ namespace Takinti.Controllers
                 ((Cart)Session["Cart"]).UserName = User.Identity.Name;
                 ((Cart)Session["Cart"]).UpdateDate = DateTime.Now;
 
-                var cartItem = new CartItem();
-                cartItem.Quantity = 1;
+
+                CartItem cartItem= ((Cart)Session["Cart"]).CartItems.FirstOrDefault(c => c.Product.Slug.ToLower() == slug.ToLower());
+                if (cartItem == null)
+                {
+                    cartItem = new CartItem();
+                    cartItem.Quantity = 1;
+                
+                
                 var product = db.Products.FirstOrDefault(p => p.Slug.ToLower() == slug.ToLower() && p.IsInStock == true && p.Quantity > 0 && p.IsPublished == true);
                 if(product == null)
                 {
@@ -44,6 +54,11 @@ namespace Takinti.Controllers
                 cartItem.CreateDate = DateTime.Now;
 
                 ((Cart)Session["Cart"]).CartItems.Add(cartItem);
+                }
+                else
+                {
+                    cartItem.Quantity += 1;
+                }
                 return Json(CartProductCount());
 
             }

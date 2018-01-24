@@ -218,33 +218,37 @@
             <div class="shopping__cart">
                 <div class="shopping__cart__inner">
                     <div class="offsetmenu__close__btn">
-                        <a href="#"><i class="zmdi zmdi-close"></i></a>
+                        <a href="javascript:void(0)"><i class="zmdi zmdi-close"></i></a>
                     </div>
-                    <div class="shp__cart__wrap">
-                        @if(Session["Cart"] != null) { 
-                         foreach(var cartItem in ((Takinti.Models.Cart)Session["Cart"]).CartItems) { 
-                        <div class="shp__single__product">
-                            <div class="shp__pro__thumb">
-                                <a href="@Url.Action("Index","Product", new { slug = cartItem.Product.Slug })">
-                                    <img src="/images/product/@cartItem.Product.Photo" alt="product images">
-                                </a>
-                            </div>
-                            <div class="shp__pro__details">
-                                <h2><a href="@Url.Action("Index","Product", new { slug = cartItem.Product.Slug })">@cartItem.Product.Name</a></h2>
-                                <span class="quantity">Adet: @cartItem.Quantity</span>
-                                <span class="shp__price">@cartItem.Price ₺</span>
-                            </div>
-                            <div class="remove__btn">
-                                <a href="javascript:void(0)" onclick="RemoveFromCart('@cartItem.Product.Slug')" title="Remove this item"><i class="zmdi zmdi-close"></i></a>
-                            </div>
+                    <div id="layoutShoppingCart">
+                        <div class="shp__cart__wrap">
+                            @if (Session["Cart"] != null)
+                            {
+                                foreach (var cartItem in ((Takinti.Models.Cart)Session["Cart"]).CartItems)
+                                {
+                                    <div class="shp__single__product">
+                                        <div class="shp__pro__thumb">
+                                            <a href="@Url.Action("Index","Product", new { slug = cartItem.Product.Slug })">
+                                                <img src="/images/product/@cartItem.Product.Photo" alt="product images">
+                                            </a>
+                                        </div>
+                                        <div class="shp__pro__details">
+                                            <h2><a href="@Url.Action("Index","Product", new { slug = cartItem.Product.Slug })">@cartItem.Product.Name</a></h2>
+                                            <span class="quantity">Adet: @cartItem.Quantity</span>
+                                            <span class="shp__price">@cartItem.TotalPrice ₺</span>
+                                        </div>
+                                        <div class="remove__btn">
+                                            <a href="javascript:void(0)" onclick="RemoveFromCart('@cartItem.Product.Slug')" title="Bu Öğeyi Kaldır."><i class="zmdi zmdi-close"></i></a>
+                                        </div>
+                                    </div>
+                                }
+                            }
                         </div>
-                        }
-                        }
+                        <ul class="shoping__total">
+                            <li class="subtotal">Toplam:</li>
+                            <li class="total__price">@(Session["Cart"] != null ? ((Takinti.Models.Cart)Session["Cart"]).TotalPrice : 0)₺</li>
+                        </ul>
                     </div>
-                    <ul class="shoping__total">
-                        <li class="subtotal">Toplam:</li>
-                        <li class="total__price">@(Session["Cart"]!=null?((Takinti.Models.Cart)Session["Cart"]).TotalPrice:0)₺</li>
-                    </ul>
                     <ul class="shopping__btn">
                         <li><a href="@Url.Action("Cart","Shop")">Sepeti Göster</a></li>
                         <li class="shp__checkout"><a href="@Url.Action("Checkout","Shop")">Alışverişi Tamamla</a></li>
@@ -412,6 +416,7 @@
             $.post("/Shop/AddToCart", { slug: slug }, function (data) {
                 if (data > 0) {
                     UpdateBadge(data);
+                    UpdateCart();
                     if (closeModal) {
                         $(closeModal).modal("hide");
                     }
@@ -425,9 +430,9 @@
         }
         function RemoveFromCart(slug, closeModal) {
             $.post("/Shop/RemoveFromCart", { slug: slug }, function (data) {
-               if(data > 0){
+               
                    UpdateBadge(data);
-               }
+                   UpdateCart();
 
             }).fail(function () {
                 alert("Bir Hata oluştu.");
@@ -440,6 +445,14 @@
             } else {
                 $("#shoppingCart").append('<span id="cartBadge" class="badge" style="background-color:red;font-size:x-small;vertical-align:super;line-height:15px;height:20px;color:white;font-weight:normal;font-family:Corbel;">'+data+'</span>');
             }
+            if (data == 0) {
+                $("#cartBadge").remove();
+            }
+        }
+        function UpdateCart() {
+            $.post("/Shop/Cart", function (data) {
+                $("#layoutShoppingCart").html(data);
+            });
         }
     </script>
     @*bu sectiona script gönderebilmek için.*@
