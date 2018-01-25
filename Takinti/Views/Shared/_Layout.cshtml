@@ -122,9 +122,20 @@
                         <div class="col-md-2 col-sm-4 col-xs-3">
                             <ul class="menu-extra">
                                 <li class="search search__open hidden-xs"><span class="ti-search"></span></li>
-                                <li><a href="@Url.Action("Login","Account")"><span class="ti-user"></span></a></li>
-                                <li id="shoppingCart" class="cart__menu"><span class="ti-shopping-cart"></span>@if(Session["Cart"] != null && ((Takinti.Models.Cart)Session["Cart"]).ProductCount > 0) {<span id="cartBadge" class="badge" style="background-color:red; font-size:x-small; vertical-align:super; line-height:15px; height:20px; color:white;font-weight:normal; font-family:Corbel;">@(((Takinti.Models.Cart)Session["Cart"]).ProductCount)</span>}</li>
-                                <li class="toggle__menu hidden-xs hidden-sm"><span class="ti-menu"></span>
+                                @if (Request.IsAuthenticated)
+    {
+                            <li><a href="@Url.Action("Index","Manage")">&nbsp;Profilim</a></li>
+
+}
+                                else {
+
+                                <li><a href="@Url.Action("Index","Manage")"><span class="ti-user">&nbsp;Giriş</span></a></li>
+                                }
+
+                                <li id="shoppingCart" class="cart__menu"><span class="ti-shopping-cart"></span>@if (Session["Cart"] != null && ((Takinti.Models.Cart)Session["Cart"]).ProductCount > 0)
+    {<span id="cartBadge" class="badge" style="background-color:red; font-size:x-small; vertical-align:super; line-height:15px; height:20px; color:white;font-weight:normal; font-family:Corbel;">@(((Takinti.Models.Cart)Session["Cart"]).ProductCount)</span>}</li>
+                                <li class="toggle__menu hidden-xs hidden-sm">
+                                    <span class="ti-menu"></span>
                                 </li>
                             </ul>
                         </div>
@@ -429,6 +440,12 @@
             });
         }
         function RemoveFromCart(slug, closeModal) {
+            $("input[name=Quantity_" + slug + "]").val(0);
+
+            $('cartform').submit();
+
+
+
             $.post("/Shop/RemoveFromCart", { slug: slug }, function (data) {
                
                    UpdateBadge(data);
@@ -454,6 +471,9 @@
                 $("#layoutShoppingCart").html(data);
             });
         }
+
+       
+
     </script>
     @*bu sectiona script gönderebilmek için.*@
     @RenderSection("scripts",false)

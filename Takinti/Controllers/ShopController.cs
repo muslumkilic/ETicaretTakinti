@@ -19,6 +19,48 @@ namespace Takinti.Controllers
             return View();
         }
 
+
+        [HttpPost]
+
+        // post ile formdna gele tüm parametrelere ulaşmamızı sağlar
+        public ActionResult Cart(FormCollection form)
+        {
+            if (Request.IsAjaxRequest())
+            {
+                return View("LayoutCart");
+            }
+
+            if(Session["Cart"]==null)
+            {
+                Session["Cart"] = new Cart();
+
+            }
+
+            // 2 farklı koleksiyon olduğu için ana koleksiyonda değişiklik yapılabilecek.
+            // foreach içerisnde koleksiyonlarda değişiklik yapılamaz
+
+            var cartItems = ((Cart)Session["Cart"]).CartItems.ToArray();
+            foreach (var cartItem in cartItems)
+            {
+                if (!string.IsNullOrEmpty(form["Quantity_"+ cartItem.Product.Slug.ToLower()]))
+                {
+                    var SessionCartItem = ((Cart)Session["Cart"]).CartItems.FirstOrDefault(c => c.Product.Slug.ToLower() == cartItem.Product.Slug.ToLower());
+
+
+                    SessionCartItem.Quantity = Convert.ToInt32(form["Quantity_" + cartItem.Product.Slug.ToLower()]);
+
+
+                    if (SessionCartItem.Quantity <= 0)
+                    {
+                        ((Cart)Session["Cart"]).CartItems.Remove(SessionCartItem);
+                       
+                    }
+                }
+
+            }
+            return View();
+        }
+        [Authorize]
         public ActionResult Checkout()
         {
             return View();
